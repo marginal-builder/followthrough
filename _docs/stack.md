@@ -20,10 +20,10 @@
 | Database | Postgres | Boards, feedback items, actions, decisions, users |
 | UI | Jinja2 + HTMX + Tailwind (+ Alpine.js for small client-side bits) | Click-to-edit, add-item forms, status dropdowns |
 | Background jobs | arq (Redis-based) | Async-native, matches FastAPI; one pipeline only |
-| Auth | fastapi-users | Email magic links (or Google OAuth); everyone can view/add, light edit control |
-| File uploads | S3-compatible storage via presigned URLs | R2 / Backblaze B2 / S3; large files bypass the app server |
-| AI processing | Whisper API (transcription) + structured-output LLM | Constrained by Pydantic schemas for Actions & Decisions |
-| Deployment | Single container + Redis + Postgres + worker on Railway/Render | One repo |
+| Auth | Shared team passcode + pick-your-name from seeded user list | Session cookie; no email anywhere; keeps attribution for feedback/actions |
+| File uploads | Direct upload, processed in temp storage, discarded | No object storage; recordings are transcribed then deleted — nothing persisted |
+| AI processing | Groq API (free tier): whisper-large-v3-turbo (transcription) + Llama structured-output LLM | One provider; constrained by Pydantic schemas for Actions & Decisions |
+| Runtime | Docker Compose: app + worker + Redis + Postgres | Runs locally / on any single host; no managed deploy platform |
 
 ---
 
@@ -35,17 +35,21 @@
 | Job runner | arq over Celery | One pipeline (upload → transcribe → extract → write); Celery's complexity is wasted at this scale; async-native |
 | Extraction safety | Pydantic-model-constrained structured output | Malformed extractions fail validation and retry instead of corrupting the board |
 | Human-in-the-loop | Extractions land in "pending" state, always editable | Matches plan.md requirement ("auto-extract + always editable by humans") |
-| Upload path | Presigned URLs to S3-compatible storage | Video files too large for app-server request bodies |
+| Auth simplicity | Team passcode + name selection over per-user accounts | Internal team of known people; no email infra, no recovery flows; spoofing names is acceptable at this trust level |
+| Ephemeral recordings | Upload → temp file → transcribe → delete | MVP needs transcription, not retention; removes storage service, lifecycle rules, and privacy surface |
+| AI provider | Groq free tier (whisper-large-v3-turbo + Llama) | Free, fast inference, single API key; adequate accuracy for MVP extraction |
+| Deployment | Docker Compose only | Internal tool; no managed platform cost or vendor lock-in |
 
 ---
 
 ## Processing Pipeline
 
-1. User uploads audio/video (presigned URL to storage) or pastes transcript
-2. arq job: transcribe via Whisper API (skipped if transcript pasted)
-3. arq job: LLM structured-output extraction → validated against Pydantic models
-4. Validated Actions & Decisions written in **pending** state, linked to the week's board
-5. Users review/edit → items become live board actions
+1. User uploads audio/video (multipart, written to a temp file) or pastes transcript
+2. arq job: transcribe via Groq `whisper-large-v3-turbo` (skipped if transcript pasted)
+3. Temp file **deleted** — recording is never persisted
+4. arq job: Groq LLM structured-output extraction → validated against Pydantic models
+5. Validated Actions & Decisions written in **pending** state, linked to the week's board
+6. Users review/edit → items become live board actions
 
 Each stage retries independently.
 
@@ -53,7 +57,7 @@ Each stage retries independently.
 
 ## Out of Scope (inherited from plan.md)
 
-Voting, built-in recording, auto-created boards, complex permissions, per-project boards, integrations, analytics, mobile app.
+Voting, built-in recording, auto-created boards, per-user accounts / email auth, file/recordings storage, complex permissions, per-project boards, integrations, analytics, mobile app, managed cloud deployment.
 
 ---
 
@@ -61,7 +65,7 @@ Voting, built-in recording, auto-created boards, complex permissions, per-projec
 
 1. Scaffold project (FastAPI + SQLModel + arq structure)
 2. Data model: User, WeeklyBoard, FeedbackItem, Action, Decision, Extraction
-3. Auth setup (magic links)
+3. Docker Compose (app, worker, Redis, Postgres) + simple passcode auth
 4. Board CRUD + HTMX interactions
-5. Upload + extraction pipeline
+5. Upload → Groq transcription/extraction pipeline (ephemeral files)
 6. History view
