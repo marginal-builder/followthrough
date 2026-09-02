@@ -1,4 +1,4 @@
-# Weekly Feedback Tool – Stack Decision
+# FollowThrough – Stack Decision
 
 **Date:** 2026-09-02  
 **Status:** Decided (Option 2)

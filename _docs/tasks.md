@@ -1,4 +1,4 @@
-# Weekly Feedback Tool – Task Backlog
+# FollowThrough – Task Backlog
 
 Each task is sized for a single session and written to be self-contained: the assignee only needs `plan.md` (product scope) and `stack.md` (technology choices). Every task ships with passing tests; the project uses pytest throughout.
 

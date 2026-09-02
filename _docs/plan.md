@@ -1,4 +1,6 @@
-# Weekly Feedback Tool – MVP Scope
+# FollowThrough – MVP Scope
+
+**A lightweight team tool for weekly feedback + retrospectives.**
 
 **Date:** 2026-09-02  
 **Status:** Scoped MVP
