@@ -1,11 +1,9 @@
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 
 from app.core.auth import seed_users
-from app.core.templates import get_current_user, render
-from app.models import User
 
 
 @asynccontextmanager
@@ -28,20 +26,7 @@ async def health_check() -> JSONResponse:
 
 
 from app.api.auth import router as auth_router
+from app.api.boards import router as boards_router
 
 app.include_router(auth_router)
-
-
-@app.get("/boards", response_class=HTMLResponse)
-async def boards(
-    request: Request,
-    current_user: User | None = Depends(get_current_user),
-):
-    request.state.current_user = current_user
-    if current_user is None:
-        return RedirectResponse(url="/login", status_code=302)
-    return render(
-        request,
-        "boards_list.html",
-        {"current_user": current_user},
-    )
+app.include_router(boards_router)
