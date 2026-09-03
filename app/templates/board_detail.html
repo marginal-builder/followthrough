@@ -51,6 +51,9 @@
     {% endfor %}
 </div>
 
+{% set board_id = board.id %}
+{% include "boards/upload.html" %}
+
 <div class="mt-8">
     <h2 class="text-lg font-semibold mb-3">Actions</h2>
     {% include "boards/_actions_list.html" %}

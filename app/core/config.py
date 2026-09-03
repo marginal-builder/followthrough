@@ -16,5 +16,8 @@ class Settings(BaseSettings):
     SESSION_SECRET: str
     GROQ_API_KEY: str
 
+    UPLOAD_DIR: str = "/tmp/followthrough"
+    MAX_UPLOAD_SIZE_MB: int = 50
+
 
 settings = Settings()
