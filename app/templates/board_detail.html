@@ -1,5 +1,62 @@
 {% extends "base.html" %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">Board {{ board.id }}</h1>
-<p class="text-gray-600">Week of {{ board.week_start }}</p>
+<h1 class="text-2xl font-bold mb-2">{{ board.week_start }}</h1>
+<p class="text-gray-600 mb-6">Week of {{ board.week_start }}</p>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    {% for col in ["start", "stop", "continue"] %}
+    <div class="flex flex-col">
+        <h2 class="text-lg font-semibold mb-3">{{ col | capitalize }}</h2>
+
+        <div id="items-{{ col }}" class="flex-1 mb-4">
+            {% set col_items = items_by_column.get(col, []) %}
+            {% if col_items %}
+                {% for entry in col_items %}
+                    {% with item=entry.item, author_name=entry.author_name %}
+                        {% include "boards/_feedback_item.html" %}
+                    {% endwith %}
+                {% endfor %}
+            {% else %}
+                <p class="text-gray-400 italic text-sm">No items yet</p>
+            {% endif %}
+        </div>
+
+        <form
+            hx-post="/boards/{{ board.id }}/feedback"
+            hx-target="#items-{{ col }}"
+            hx-swap="afterbegin"
+            class="space-y-2"
+        >
+            <input type="hidden" name="column" value="{{ col }}">
+            <textarea
+                name="body"
+                required
+                maxlength="1000"
+                rows="3"
+                placeholder="Add feedback..."
+                class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-indigo-500 focus:border-indigo-500"
+            ></textarea>
+            <div class="flex items-center gap-2">
+                <input type="checkbox" name="anonymous" id="anonymous-{{ col }}" class="rounded">
+                <label for="anonymous-{{ col }}" class="text-sm text-gray-600">Submit anonymously</label>
+            </div>
+            <button
+                type="submit"
+                class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm"
+            >
+                Submit
+            </button>
+        </form>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    document.body.addEventListener("htmx:afterSwap", function(e) {
+        if (e.detail.target.id.startsWith("items-")) {
+            var form = e.detail.target.closest("div.flex.flex-col").querySelector("form");
+            if (form) form.reset();
+        }
+    });
+</script>
 {% endblock %}

@@ -1,0 +1,7 @@
+<div class="bg-white rounded-lg shadow-sm p-4 mb-3">
+    <p class="text-gray-800 mb-2">{{ item.body }}</p>
+    <div class="flex items-center justify-between text-xs text-gray-500">
+        <span>{{ author_name or "Anonymous" }}</span>
+        <time datetime="{{ item.created_at.isoformat() }}">{{ item.created_at.strftime("%b %d, %Y %I:%M %p") }}</time>
+    </div>
+</div>

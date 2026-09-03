@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -6,6 +8,7 @@ from app.core.db import get_session
 from app.core.templates import get_current_user, render
 from app.models import User
 from app.services.board_service import get_board, get_boards, get_or_create_board
+from app.services.feedback_service import get_items_for_board
 
 router = APIRouter()
 
@@ -51,8 +54,13 @@ async def boards_detail(
     board = await get_board(session, board_id)
     if board is None:
         return RedirectResponse(url="/boards", status_code=302)
+    items = await get_items_for_board(session, board_id)
+    items_by_column: dict[str, list[dict]] = defaultdict(list)
+    for entry in items:
+        items_by_column[entry["item"].column].append(entry)
+
     return render(
         request,
         "board_detail.html",
-        {"current_user": current_user, "board": board},
+        {"current_user": current_user, "board": board, "items_by_column": items_by_column},
     )
