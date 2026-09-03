@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import UTC, date, datetime
 
 import pytest
 from sqlalchemy import text
@@ -198,3 +198,79 @@ async def test_deleting_board_cascades_to_children(session: AsyncSession) -> Non
     assert await count("actions") == 0
     assert await count("decisions") == 0
     assert await count("extractions") == 0
+
+
+async def test_extraction_invalid_status_fails(session: AsyncSession) -> None:
+    board = await make_board(session)
+
+    extraction = Extraction(
+        board_id=board.id, kind="action", payload={"body": "x"}, status="bogus"
+    )
+    session.add(extraction)
+    with pytest.raises(IntegrityError):
+        await session.commit()
+
+
+async def test_feedback_item_null_author(session: AsyncSession) -> None:
+    board = await make_board(session)
+
+    item = FeedbackItem(board_id=board.id, column="start", body="No author")
+    session.add(item)
+    await session.commit()
+    await session.refresh(item)
+
+    assert item.author_id is None
+
+
+async def test_action_null_owner(session: AsyncSession) -> None:
+    board = await make_board(session)
+
+    action = Action(board_id=board.id, body="No owner")
+    session.add(action)
+    await session.commit()
+    await session.refresh(action)
+
+    assert action.owner_id is None
+
+
+async def test_action_null_due_date(session: AsyncSession) -> None:
+    board = await make_board(session)
+
+    action = Action(board_id=board.id, body="No due date")
+    session.add(action)
+    await session.commit()
+    await session.refresh(action)
+
+    assert action.due_date is None
+
+
+async def test_extraction_created_at_defaults(session: AsyncSession) -> None:
+    board = await make_board(session)
+    now = datetime.now(UTC).replace(tzinfo=None)
+
+    extraction = Extraction(board_id=board.id, kind="action", payload={"body": "x"})
+    session.add(extraction)
+    await session.commit()
+    await session.refresh(extraction)
+
+    assert extraction.created_at is not None
+    assert abs((extraction.created_at - now).total_seconds()) < 1
+
+
+async def test_feedback_item_created_at_defaults(session: AsyncSession) -> None:
+    board = await make_board(session)
+    now = datetime.now(UTC).replace(tzinfo=None)
+
+    item = FeedbackItem(board_id=board.id, column="start", body="With timestamp")
+    session.add(item)
+    await session.commit()
+    await session.refresh(item)
+
+    assert item.created_at is not None
+    assert abs((item.created_at - now).total_seconds()) < 1
+
+
+async def test_weekly_board_is_archived_default(session: AsyncSession) -> None:
+    board = await make_board(session)
+
+    assert board.is_archived is False
