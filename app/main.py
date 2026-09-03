@@ -25,10 +25,12 @@ async def health_check() -> JSONResponse:
     return JSONResponse({"status": "ok"})
 
 
+from app.api.actions import router as actions_router
 from app.api.auth import router as auth_router
 from app.api.boards import router as boards_router
 from app.api.feedback import router as feedback_router
 
 app.include_router(auth_router)
 app.include_router(boards_router)
+app.include_router(actions_router)
 app.include_router(feedback_router)

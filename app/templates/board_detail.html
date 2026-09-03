@@ -51,11 +51,23 @@
     {% endfor %}
 </div>
 
+<div class="mt-8">
+    <h2 class="text-lg font-semibold mb-3">Actions</h2>
+    {% include "boards/_actions_list.html" %}
+</div>
+
 <script>
     document.body.addEventListener("htmx:afterSwap", function(e) {
         if (e.detail.target.id.startsWith("items-")) {
             var form = e.detail.target.closest("div.flex.flex-col").querySelector("form");
             if (form) form.reset();
+        }
+        if (e.detail.target.id === "actions-list") {
+            var section = e.detail.target.closest("div.mt-8");
+            if (section) {
+                var form = section.querySelector("form");
+                if (form) form.reset();
+            }
         }
     });
 </script>

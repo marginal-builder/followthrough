@@ -1,0 +1,41 @@
+<div id="action-{{ action.id }}" class="bg-white rounded-lg shadow-sm p-4 mb-3">
+    <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+            <span class="text-sm font-medium text-gray-800">{{ owner_name or "Unassigned" }}</span>
+            {% set badge_classes = {
+                "todo": "bg-gray-100 text-gray-800",
+                "in_progress": "bg-blue-100 text-blue-800",
+                "done": "bg-green-100 text-green-800"
+            } %}
+            {% set badge_labels = {
+                "todo": "To Do",
+                "in_progress": "In Progress",
+                "done": "Done"
+            } %}
+            <span class="text-xs px-2 py-1 rounded-full {{ badge_classes.get(action.status, 'bg-gray-100 text-gray-800') }}">
+                {{ badge_labels.get(action.status, action.status) }}
+            </span>
+        </div>
+        <div class="flex items-center gap-2">
+            {% if can_change_status %}
+            <select
+                hx-put="/boards/{{ board_id }}/actions/{{ action.id }}"
+                hx-target="#action-{{ action.id }}"
+                hx-swap="outerHTML"
+                hx-vals='{"status": this.value}'
+                hx-include="[name=status]"
+                class="text-xs border border-gray-300 rounded px-2 py-1"
+            >
+                <option value="todo" {% if action.status == "todo" %}selected{% endif %}>To Do</option>
+                <option value="in_progress" {% if action.status == "in_progress" %}selected{% endif %}>In Progress</option>
+                <option value="done" {% if action.status == "done" %}selected{% endif %}>Done</option>
+            </select>
+            <input type="hidden" name="status" value="{{ action.status }}">
+            {% endif %}
+        </div>
+    </div>
+    <p class="text-gray-700 text-sm mb-1">{{ action.body }}</p>
+    {% if action.due_date %}
+    <time datetime="{{ action.due_date.isoformat() }}" class="text-xs text-gray-500">{{ action.due_date.strftime("%b %d, %Y") }}</time>
+    {% endif %}
+</div>

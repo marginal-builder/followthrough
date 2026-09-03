@@ -7,6 +7,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from app.core.db import get_session
 from app.core.templates import get_current_user, render
 from app.models import User
+from app.services.action_service import get_actions_for_board, get_all_users
 from app.services.board_service import get_board, get_boards, get_or_create_board
 from app.services.feedback_service import get_items_for_board
 
@@ -59,8 +60,17 @@ async def boards_detail(
     for entry in items:
         items_by_column[entry["item"].column].append(entry)
 
+    actions = await get_actions_for_board(session, board_id)
+    users = await get_all_users(session)
+
     return render(
         request,
         "board_detail.html",
-        {"current_user": current_user, "board": board, "items_by_column": items_by_column},
+        {
+            "current_user": current_user,
+            "board": board,
+            "items_by_column": items_by_column,
+            "actions": actions,
+            "users": users,
+        },
     )

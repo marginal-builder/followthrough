@@ -1,0 +1,44 @@
+<div id="actions-list">
+    {% if actions %}
+        {% for entry in actions %}
+            {% with action=entry.action, owner_name=entry.owner_name, board_id=board.id, can_change_status=(current_user and (current_user.is_admin or current_user.id == action.owner_id)) %}
+                {% include "boards/_action_item.html" %}
+            {% endwith %}
+        {% endfor %}
+    {% else %}
+        <p class="text-gray-400 italic text-sm">No actions yet</p>
+    {% endif %}
+</div>
+
+<form
+    hx-post="/boards/{{ board.id }}/actions"
+    hx-target="#actions-list"
+    hx-swap="beforeend"
+    class="space-y-2 mt-4"
+>
+    <select name="owner_id" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+        <option value="">Unassigned</option>
+        {% for user in users %}
+        <option value="{{ user.id }}">{{ user.name }}</option>
+        {% endfor %}
+    </select>
+    <textarea
+        name="body"
+        required
+        maxlength="1000"
+        rows="3"
+        placeholder="Add action..."
+        class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-indigo-500 focus:border-indigo-500"
+    ></textarea>
+    <input
+        type="date"
+        name="due_date"
+        class="w-full border border-gray-300 rounded-lg p-2 text-sm"
+    >
+    <button
+        type="submit"
+        class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm"
+    >
+        Add Action
+    </button>
+</form>
