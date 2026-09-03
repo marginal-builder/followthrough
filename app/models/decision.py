@@ -1,3 +1,4 @@
+from datetime import UTC, datetime
 
 from sqlmodel import Field, SQLModel
 
@@ -13,3 +14,8 @@ class Decision(SQLModel, table=True):
         nullable=False,
     )
     body: str = Field(nullable=False)
+    author_id: int | None = Field(default=None, foreign_key="users.id")
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC).replace(tzinfo=None),
+        nullable=False,
+    )

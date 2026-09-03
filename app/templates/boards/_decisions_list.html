@@ -1,0 +1,35 @@
+<div id="decisions-list">
+    {% if decisions %}
+        {% for entry in decisions %}
+            {% with decision=entry.decision, author_name=entry.author_name, board_id=board.id, can_edit=(current_user and (current_user.is_admin or current_user.id == entry.decision.author_id)) %}
+                {% include "boards/_decision_item.html" %}
+            {% endwith %}
+        {% endfor %}
+    {% else %}
+        <p class="text-gray-400 italic text-sm">No decisions yet</p>
+    {% endif %}
+</div>
+
+{% if current_user %}
+<form
+    hx-post="/boards/{{ board.id }}/decisions"
+    hx-target="#decisions-list"
+    hx-swap="beforeend"
+    class="space-y-2 mt-4"
+>
+    <textarea
+        name="body"
+        required
+        maxlength="2000"
+        rows="3"
+        placeholder="Add decision..."
+        class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-indigo-500 focus:border-indigo-500"
+    ></textarea>
+    <button
+        type="submit"
+        class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm"
+    >
+        Submit
+    </button>
+</form>
+{% endif %}
