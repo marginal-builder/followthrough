@@ -50,6 +50,29 @@ async def test_base_layout_exposes_blocks():
     assert "title" in template.blocks
 
 
+async def test_unauthenticated_no_header(client: AsyncClient):
+    """When current_user is None, base.html renders no <header> element."""
+    from fastapi.templating import Jinja2Templates
+
+    templates = Jinja2Templates(directory="app/templates")
+    from starlette.requests import Request as StarletteRequest
+
+    scope = {
+        "type": "http",
+        "method": "GET",
+        "path": "/test",
+        "query_string": b"",
+        "headers": [],
+    }
+    request = StarletteRequest(scope)
+    response = templates.TemplateResponse(
+        request,
+        "base.html",
+        {"current_user": None},
+    )
+    assert "<header>" not in response.body.decode()
+
+
 async def test_unauthenticated_boards_redirects(client: AsyncClient):
     """Without a session, /boards redirects to /login (no header rendered)."""
     resp = await client.get("/boards")
