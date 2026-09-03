@@ -12,7 +12,7 @@
             {% set col_items = items_by_column.get(col, []) %}
             {% if col_items %}
                 {% for entry in col_items %}
-                    {% with item=entry.item, author_name=entry.author_name %}
+                    {% with item=entry.item, author_name=entry.author_name, board_id=board.id, can_edit=(current_user and (current_user.is_admin or current_user.id == item.author_id)) %}
                         {% include "boards/_feedback_item.html" %}
                     {% endwith %}
                 {% endfor %}

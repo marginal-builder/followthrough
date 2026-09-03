@@ -24,6 +24,59 @@ async def get_items_for_board(
     ]
 
 
+async def get_feedback_item(
+    session: AsyncSession, item_id: int, board_id: int
+) -> dict | None:
+    result = await session.execute(
+        select(FeedbackItem, User.name)
+        .outerjoin(User, FeedbackItem.author_id == User.id)
+        .where(FeedbackItem.id == item_id, FeedbackItem.board_id == board_id)
+    )
+    row = result.one_or_none()
+    if row is None:
+        return None
+    return {"item": row[0], "author_name": row[1]}
+
+
+async def update_feedback(
+    session: AsyncSession, item_id: int, board_id: int, *, body: str
+) -> dict:
+    result = await session.execute(
+        select(FeedbackItem).where(
+            FeedbackItem.id == item_id, FeedbackItem.board_id == board_id
+        )
+    )
+    item = result.scalar_one_or_none()
+    if item is None:
+        raise ValueError("Feedback item not found")
+    item.body = body
+    session.add(item)
+    await session.commit()
+    await session.refresh(item)
+    result = await session.execute(
+        select(FeedbackItem, User.name)
+        .outerjoin(User, FeedbackItem.author_id == User.id)
+        .where(FeedbackItem.id == item.id)
+    )
+    row = result.one()
+    return {"item": row[0], "author_name": row[1]}
+
+
+async def delete_feedback(
+    session: AsyncSession, item_id: int, board_id: int
+) -> None:
+    result = await session.execute(
+        select(FeedbackItem).where(
+            FeedbackItem.id == item_id, FeedbackItem.board_id == board_id
+        )
+    )
+    item = result.scalar_one_or_none()
+    if item is None:
+        raise ValueError("Feedback item not found")
+    await session.delete(item)
+    await session.commit()
+
+
 async def create_feedback(
     session: AsyncSession,
     *,

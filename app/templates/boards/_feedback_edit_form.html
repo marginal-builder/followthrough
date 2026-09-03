@@ -1,0 +1,29 @@
+<div id="feedback-{{ item.id }}" class="bg-white rounded-lg shadow-sm p-4 mb-3">
+    <form
+        hx-put="/boards/{{ board_id }}/feedback/{{ item.id }}"
+        hx-target="#feedback-{{ item.id }}"
+        hx-swap="outerHTML"
+        class="space-y-2"
+    >
+        <textarea
+            name="body"
+            required
+            maxlength="1000"
+            rows="3"
+            class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-indigo-500 focus:border-indigo-500"
+        >{{ item.body }}</textarea>
+        <div class="flex items-center gap-2">
+            <button
+                type="submit"
+                class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 text-sm"
+            >Save</button>
+            <button
+                type="button"
+                hx-get="/boards/{{ board_id }}/feedback/{{ item.id }}?cancel=1"
+                hx-target="#feedback-{{ item.id }}"
+                hx-swap="outerHTML"
+                class="bg-gray-300 text-gray-700 px-3 py-1 rounded hover:bg-gray-400 text-sm"
+            >Cancel</button>
+        </div>
+    </form>
+</div>
