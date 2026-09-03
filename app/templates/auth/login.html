@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - FollowThrough</title>
+    <style>
+        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5; }
+        .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h1 { margin: 0 0 1.5rem; text-align: center; }
+        label { display: block; margin-bottom: 0.25rem; font-weight: 600; }
+        select, input[type="password"] { width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; box-sizing: border-box; margin-bottom: 1rem; }
+        button { width: 100%; padding: 0.6rem; background: #2563eb; color: white; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; }
+        button:hover { background: #1d4ed8; }
+        .error { background: #fef2f2; color: #dc2626; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; border: 1px solid #fecaca; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>FollowThrough</h1>
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+        <form method="post" action="/login">
+            <label for="user_id">Name</label>
+            <select name="user_id" id="user_id" required>
+                <option value="0">-- Select your name --</option>
+                {% for user in users %}
+                <option value="{{ user.id }}">{{ user.name }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="passcode">Team Passcode</label>
+            <input type="password" name="passcode" id="passcode" required autocomplete="current-password">
+
+            <button type="submit">Log in</button>
+        </form>
+    </div>
+</body>
+</html>
