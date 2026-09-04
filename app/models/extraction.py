@@ -1,6 +1,7 @@
 from datetime import UTC, datetime
 from typing import Any
 
+from pydantic import BaseModel
 from sqlalchemy import JSON, CheckConstraint
 from sqlmodel import Column, Field, SQLModel
 
@@ -29,3 +30,18 @@ class Extraction(SQLModel, table=True):
         default_factory=lambda: datetime.now(UTC).replace(tzinfo=None),
         nullable=False,
     )
+
+
+class ActionSuggestion(BaseModel):
+    body: str
+    owner_hint: str | None = None
+    due_date: str | None = None
+
+
+class DecisionSuggestion(BaseModel):
+    body: str
+
+
+class ExtractionResult(BaseModel):
+    actions: list[ActionSuggestion]
+    decisions: list[DecisionSuggestion]

@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -7,6 +9,8 @@ from app.core.templates import get_current_user
 from app.models import User
 from app.models.transcript import Transcript
 from app.services.board_service import get_board
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -49,5 +53,13 @@ async def paste_transcript(
     )
     session.add(transcript)
     await session.commit()
+
+    # Trigger extraction job (fire-and-forget, must not crash the route)
+    try:
+        redis_pool = request.app.state.redis_pool
+        if redis_pool is not None:
+            await redis_pool.enqueue_job("extraction_job", board_id)
+    except Exception:
+        logger.exception("Failed to enqueue extraction_job after paste")
 
     return HTMLResponse('<p class="text-sm text-green-600">Transcript saved</p>')

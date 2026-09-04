@@ -3,7 +3,7 @@ from typing import ClassVar
 from arq import WorkerSettings
 
 from app.core.config import settings
-from app.worker.jobs import transcribe_recording
+from app.worker.jobs import extraction_job, transcribe_recording
 
 
 class WorkerSettings(WorkerSettings):
@@ -15,6 +15,12 @@ class WorkerSettings(WorkerSettings):
             "name": "transcribe_recording",
             "coroutine": transcribe_recording,
             "job_timeout": 180,
+            "max_tries": 3,
+        },
+        {
+            "name": "extraction_job",
+            "coroutine": extraction_job,
+            "job_timeout": 120,
             "max_tries": 3,
         },
     ]
