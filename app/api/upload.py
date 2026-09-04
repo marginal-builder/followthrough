@@ -8,11 +8,14 @@ from arq.jobs import Job, JobStatus
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel
+from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette.datastructures import UploadFile as StarletteUploadFile
 
 from app.core.config import settings
+from app.core.db import get_session
 from app.core.templates import get_current_user
 from app.models import User
+from app.services.board_service import require_active_board
 
 router = APIRouter()
 
@@ -69,6 +72,8 @@ async def upload_recording(
     request: Request,
     board_id: int,
     current_user: User | None = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+    _board=Depends(require_active_board),
 ):
     if current_user is None:
         return RedirectResponse(url="/login", status_code=302)

@@ -8,7 +8,12 @@ from app.core.db import get_session
 from app.core.templates import get_current_user, render
 from app.models import User
 from app.services.action_service import get_actions_for_board, get_all_users
-from app.services.board_service import get_board, get_boards, get_or_create_board
+from app.services.board_service import (
+    archive_previous_unarchived,
+    get_board,
+    get_boards,
+    get_or_create_board,
+)
 from app.services.decision_service import get_decisions_for_board
 from app.services.extraction_service import get_pending_extractions
 from app.services.feedback_service import get_items_for_board
@@ -41,7 +46,10 @@ async def boards_create(
     if current_user is None:
         return RedirectResponse(url="/login", status_code=302)
     board = await get_or_create_board(session)
-    return RedirectResponse(url=f"/boards/{board.id}", status_code=302)
+    board_id = board.id
+    await archive_previous_unarchived(session, exclude_board_id=board_id)
+    await session.commit()
+    return RedirectResponse(url=f"/boards/{board_id}", status_code=302)
 
 
 @router.get("/boards/{board_id}", response_class=HTMLResponse)

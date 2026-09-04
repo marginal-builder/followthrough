@@ -8,7 +8,7 @@ from app.core.db import get_session
 from app.core.templates import get_current_user
 from app.models import User
 from app.models.transcript import Transcript
-from app.services.board_service import get_board
+from app.services.board_service import get_board, require_active_board
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +23,7 @@ async def paste_transcript(
     board_id: int,
     current_user: User | None = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
+    _board=Depends(require_active_board),
 ):
     if current_user is None:
         return RedirectResponse(url="/login", status_code=302)

@@ -10,6 +10,7 @@ from app.core.templates import get_current_user, render
 from app.models import User
 from app.models.action import Action
 from app.services import action_service
+from app.services.board_service import require_active_board
 
 router = APIRouter(prefix="/boards/{board_id}")
 
@@ -33,6 +34,7 @@ async def create_action(
     due_date: str = Form(None),
     current_user: User | None = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
+    _board=Depends(require_active_board),
 ):
     if current_user is None:
         return RedirectResponse(url="/login", status_code=302)

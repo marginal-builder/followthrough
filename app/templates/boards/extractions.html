@@ -7,6 +7,7 @@
                     <span class="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">AI Suggestion</span>
                     <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">{{ extraction.kind | capitalize }}</span>
                 </div>
+                {% if not board.is_archived %}
                 <div class="flex items-center gap-2">
                     <button
                         hx-post="/boards/{{ board.id }}/extractions/{{ extraction.id }}/approve"
@@ -21,6 +22,7 @@
                         class="text-xs bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
                     >Discard</button>
                 </div>
+                {% endif %}
             </div>
             <p class="text-gray-700 text-sm mb-1">{{ extraction.payload.body }}</p>
             {% if extraction.kind == "action" %}

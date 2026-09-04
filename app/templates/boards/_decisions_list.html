@@ -10,7 +10,7 @@
     {% endif %}
 </div>
 
-{% if current_user %}
+{% if current_user and not board.is_archived %}
 <form
     hx-post="/boards/{{ board.id }}/decisions"
     hx-target="#decisions-list"

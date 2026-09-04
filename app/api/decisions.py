@@ -6,6 +6,7 @@ from app.core.db import get_session
 from app.core.templates import get_current_user, render
 from app.models import User
 from app.services import decision_service
+from app.services.board_service import require_active_board
 
 router = APIRouter(prefix="/boards/{board_id}")
 
@@ -25,6 +26,7 @@ async def create_decision(
     body: str = Form(..., max_length=MAX_BODY_LENGTH),
     current_user: User | None = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
+    _board=Depends(require_active_board),
 ):
     if current_user is None:
         return RedirectResponse(url="/login", status_code=302)

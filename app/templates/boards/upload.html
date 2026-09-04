@@ -1,3 +1,4 @@
+{% if not board.is_archived %}
 <div class="mt-8">
   <h2 class="text-lg font-semibold mb-3">Upload Recording</h2>
   <form
@@ -51,3 +52,4 @@
   </form>
   <div id="paste-result" class="mt-3"></div>
 </div>
+{% endif %}
