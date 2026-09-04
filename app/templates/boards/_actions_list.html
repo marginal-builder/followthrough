@@ -1,7 +1,7 @@
 <div id="actions-list">
     {% if actions %}
         {% for entry in actions %}
-            {% with action=entry.action, owner_name=entry.owner_name, board_id=board.id, can_change_status=(current_user and (current_user.is_admin or current_user.id == action.owner_id)) %}
+            {% with action=entry.action, owner_name=entry.owner_name, board_id=board.id, can_change_status=(current_user and (current_user.is_admin or current_user.id == entry.action.owner_id)) %}
                 {% include "boards/_action_item.html" %}
             {% endwith %}
         {% endfor %}
@@ -10,6 +10,7 @@
     {% endif %}
 </div>
 
+{% if not board.is_archived %}
 <form
     hx-post="/boards/{{ board.id }}/actions"
     hx-target="#actions-list"
@@ -42,3 +43,4 @@
         Add Action
     </button>
 </form>
+{% endif %}
