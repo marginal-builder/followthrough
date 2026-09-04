@@ -5,7 +5,15 @@ from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
-from app.models import Action, Decision, Extraction, FeedbackItem, User, WeeklyBoard
+from app.models import (
+    Action,
+    Decision,
+    Extraction,
+    FeedbackItem,
+    Transcript,
+    User,
+    WeeklyBoard,
+)
 
 
 @pytest.fixture
@@ -180,6 +188,7 @@ async def test_deleting_board_cascades_to_children(session: AsyncSession) -> Non
     session.add(Action(board_id=board.id, body="A1"))
     session.add(Decision(board_id=board.id, body="D1"))
     session.add(Extraction(board_id=board.id, kind="action", payload={"body": "E1"}))
+    session.add(Transcript(board_id=board.id, text="T1", source="upload", status="ready"))
     await session.commit()
 
     async def count(table: str) -> int:
@@ -190,6 +199,7 @@ async def test_deleting_board_cascades_to_children(session: AsyncSession) -> Non
     assert await count("actions") == 1
     assert await count("decisions") == 1
     assert await count("extractions") == 1
+    assert await count("transcripts") == 1
 
     await session.delete(board)
     await session.commit()
@@ -198,6 +208,7 @@ async def test_deleting_board_cascades_to_children(session: AsyncSession) -> Non
     assert await count("actions") == 0
     assert await count("decisions") == 0
     assert await count("extractions") == 0
+    assert await count("transcripts") == 0
 
 
 async def test_extraction_invalid_status_fails(session: AsyncSession) -> None:

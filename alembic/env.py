@@ -10,6 +10,7 @@ from app.models import (  # noqa: F401
     Decision,
     Extraction,
     FeedbackItem,
+    Transcript,
     User,
     WeeklyBoard,
 )

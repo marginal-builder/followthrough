@@ -10,7 +10,14 @@ class WorkerSettings(WorkerSettings):
     """ARQ worker settings."""
 
     redis_settings = settings.VALKEY_URL
-    functions: ClassVar[list] = [transcribe_recording]
+    functions: ClassVar[list] = [
+        {
+            "name": "transcribe_recording",
+            "coroutine": transcribe_recording,
+            "job_timeout": 180,
+            "max_tries": 3,
+        },
+    ]
     queue_name = "followthrough"
     max_jobs = 10
     job_timeout = 300

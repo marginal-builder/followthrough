@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engin
 from app.core.config import settings
 
 TABLES = (
+    "transcripts",
     "feedback_items",
     "extractions",
     "decisions",
