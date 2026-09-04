@@ -25,3 +25,29 @@
   </form>
   <div id="upload-result" class="mt-3"></div>
 </div>
+
+<div class="mt-8">
+  <h2 class="text-lg font-semibold mb-3">Paste Transcript</h2>
+  <form
+    hx-post="/boards/{{ board_id }}/transcripts/paste"
+    hx-target="#paste-result"
+    hx-swap="innerHTML"
+    class="space-y-3"
+  >
+    <textarea
+      name="text"
+      rows="6"
+      maxlength="50000"
+      placeholder="Paste transcript text here..."
+      class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm
+             placeholder:text-gray-400 focus:border-indigo-500 focus:ring-indigo-500"
+    ></textarea>
+    <button
+      type="submit"
+      class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm"
+    >
+      Save Transcript
+    </button>
+  </form>
+  <div id="paste-result" class="mt-3"></div>
+</div>
