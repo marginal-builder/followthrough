@@ -10,6 +10,7 @@ from app.models import User
 from app.services.action_service import get_actions_for_board, get_all_users
 from app.services.board_service import get_board, get_boards, get_or_create_board
 from app.services.decision_service import get_decisions_for_board
+from app.services.extraction_service import get_pending_extractions
 from app.services.feedback_service import get_items_for_board
 
 router = APIRouter()
@@ -64,6 +65,7 @@ async def boards_detail(
     actions = await get_actions_for_board(session, board_id)
     decisions = await get_decisions_for_board(session, board_id)
     users = await get_all_users(session)
+    pending_extractions = await get_pending_extractions(session, board_id)
 
     return render(
         request,
@@ -75,5 +77,6 @@ async def boards_detail(
             "actions": actions,
             "decisions": decisions,
             "users": users,
+            "pending_extractions": pending_extractions,
         },
     )

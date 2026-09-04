@@ -1,0 +1,39 @@
+<div id="extractions-list">
+    {% if pending_extractions %}
+        {% for extraction in pending_extractions %}
+        <div id="extraction-{{ extraction.id }}" class="bg-white rounded-lg shadow-sm p-4 mb-3">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">AI Suggestion</span>
+                    <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">{{ extraction.kind | capitalize }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button
+                        hx-post="/boards/{{ board.id }}/extractions/{{ extraction.id }}/approve"
+                        hx-target="#extraction-{{ extraction.id }}"
+                        hx-swap="outerHTML"
+                        class="text-xs bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                    >Approve</button>
+                    <button
+                        hx-post="/boards/{{ board.id }}/extractions/{{ extraction.id }}/discard"
+                        hx-target="#extraction-{{ extraction.id }}"
+                        hx-swap="outerHTML"
+                        class="text-xs bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                    >Discard</button>
+                </div>
+            </div>
+            <p class="text-gray-700 text-sm mb-1">{{ extraction.payload.body }}</p>
+            {% if extraction.kind == "action" %}
+                <div class="flex items-center gap-4 text-xs text-gray-500">
+                    <span>{{ extraction.payload.owner_hint or "Unassigned" }}</span>
+                    {% if extraction.payload.due_date %}
+                        <span>{{ extraction.payload.due_date }}</span>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-gray-400 italic text-sm">No AI suggestions yet</p>
+    {% endif %}
+</div>
